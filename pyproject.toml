@@ -15,3 +15,12 @@ test = "test:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "githubkit>=0.12.9",
+    "ruff>=0.11.2",
+]
+
+[tool.ruff.lint]
+select = ["I"]
