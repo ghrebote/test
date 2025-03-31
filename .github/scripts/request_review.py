@@ -7,6 +7,7 @@
 
 import asyncio
 import os
+import re
 from itertools import chain
 
 from githubkit import GitHub
@@ -14,6 +15,7 @@ from githubkit import GitHub
 ORG_NAME = "ghrebote"
 REPO_NAME = "test"
 ALLOWED_PARENT_TEAM = "localization"
+LOCALIZATION_TEAM_NAME_PATTERN = re.compile(r"[a-z]{2}_[A-Z]{2}")
 
 gh = GitHub(os.environ["GITHUB_TOKEN"])
 
@@ -36,6 +38,7 @@ async def fetch_and_parse_codeowners() -> dict[str, str]:
         # and that this owner is a team (ghostty-org/foobar)
         path, owner = line.split()
         codeowners[path.lstrip("/")] = owner.removeprefix(f"@{ORG_NAME}/")
+    print(1, codeowners)
     return codeowners
 
 
@@ -77,21 +80,32 @@ async def request_review(pr_number: int, *users: str) -> None:
     )
 
 
+def is_localization_team(team_name: str) -> bool:
+    return LOCALIZATION_TEAM_NAME_PATTERN.fullmatch(team_name) is not None
+
+
 async def main() -> None:
     pr_number = int(os.environ["PR_NUMBER"])
     changed_files = await get_changed_files(pr_number)
-    codeowners = await fetch_and_parse_codeowners()
+    localization_codewners = {
+        path: owner
+        for path, owner in (await fetch_and_parse_codeowners()).items()
+        if is_localization_team(owner)
+    }
+    print(2, localization_codewners)
 
     found_owners = set[str]()
     for file in changed_files:
-        for path, owner in codeowners.items():
+        for path, owner in localization_codewners.items():
             if file.startswith(path):
                 break
         else:
             continue
         found_owners.add(owner)
 
-    members_lists = await asyncio.gather(*(get_team_members(owner) for owner in found_owners))
+    members_lists = await asyncio.gather(
+        *(get_team_members(owner) for owner in found_owners)
+    )
     await request_review(pr_number, *chain.from_iterable(members_lists))
 
 
