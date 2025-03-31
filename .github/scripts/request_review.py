@@ -13,7 +13,7 @@ from githubkit import GitHub
 
 ORG_NAME = "ghrebote"
 REPO_NAME = "test"
-ALLOWED_PARENT_TEAM = "bobr"
+ALLOWED_PARENT_TEAM = "localization"
 
 gh = GitHub(os.environ["GITHUB_TOKEN"])
 
