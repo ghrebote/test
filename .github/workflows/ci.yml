@@ -9,4 +9,4 @@ jobs:
   ci:
     runs-on: "ubuntu-latest"
     steps:
-    - run: exit $(shuf -i 0-1 -n 1)
+    - run: test $(shuf -i 0-1 -n 1) -eq 0
