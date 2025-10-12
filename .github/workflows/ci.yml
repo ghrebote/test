@@ -1,12 +1,26 @@
 name: CI
 
 on:
+  workflow_dispatch:
+    inputs:
+      name:
+        default: "world"
+        type: string
   push:
     branches:
       - main
 
 jobs:
+  greet:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: "ubuntu-latest"
+    steps:
+    - run: echo "Hello $NAME"
+      env:
+        NAME: ${{ inputs.name }}
+    
   ci:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: "ubuntu-latest"
     steps:
     - run: test $(shuf -i 0-1 -n 1) -eq 0
