@@ -14,13 +14,14 @@ jobs:
   greet:
     if: github.event_name == 'workflow_dispatch'
     runs-on: "ubuntu-latest"
-    outputs:
-      message: ${{ steps.step1.outputs.msg }}
     steps:
-    - run: echo "msg=Hello $NAME" >> "$GITHUB_OUTPUT"
-      id: step1
+    - run: echo "Hello $NAME" > foo.txt
       env:
         NAME: ${{ inputs.name }}
+    - uses: actions/upload-artifact@v4
+      with:
+        name: sample-artifact
+        path: sample.txt
     
   ci:
     if: github.event_name != 'workflow_dispatch'
