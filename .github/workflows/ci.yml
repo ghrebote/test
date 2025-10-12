@@ -14,8 +14,11 @@ jobs:
   greet:
     if: github.event_name == 'workflow_dispatch'
     runs-on: "ubuntu-latest"
+    outputs:
+      message: ${{ steps.step1.outputs.msg }}
     steps:
-    - run: echo "Hello $NAME"
+    - run: echo "msg=Hello $NAME" >> "$GITHUB_OUTPUT"
+      id: step1
       env:
         NAME: ${{ inputs.name }}
     
