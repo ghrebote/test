@@ -3,21 +3,23 @@ name: CI
 on:
   workflow_dispatch:
     inputs:
-      name:
-        default: "world"
-        type: string
+      pr:
+        type: number
+        required: true
   push:
     branches:
       - main
 
 jobs:
-  greet:
+  show-dates:
     if: github.event_name == 'workflow_dispatch'
     runs-on: "ubuntu-latest"
     steps:
-    - run: echo "Hello $NAME" > sample.txt
+    - run: |
+        curl -Ls "https://github.com/ghrebote/test/pull/$PR.patch" | grep "^Date:" > sample.txt
+        echo "$PR" >> sample.txt
       env:
-        NAME: ${{ inputs.name }}
+        PR: ${{ inputs.pr }}
     - uses: actions/upload-artifact@v4
       with:
         name: sample-artifact
